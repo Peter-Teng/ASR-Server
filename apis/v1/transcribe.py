@@ -7,6 +7,7 @@ from fastapi import Request
 from fastapi import File, Form
 from pydantic import BaseModel
 from pydub import AudioSegment
+from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from service.transcribe import transcribeModel
 from utils.logger import getLogger
@@ -69,3 +70,40 @@ async def audio_to_text(request: Request,  # 获取请求对象
     LOGGER.info("识别成功，用时 : %2.2f ms" % (elapse_time * 1000))
     LOGGER.debug(str(data))
     return {"code": "0", "describe": "success", "data": data}
+
+@router.websocket("/ws/realtime")
+async def websocket_realtime(websocket: WebSocket):
+    await websocket.accept()
+    LOGGER = getLogger()
+    current_date = datetime.now()
+    service = transcribeModel()
+    # 设置文件保存目录
+    dir_path = os.path.join(service.conf["file_save_base_dir"], str(current_date.year), str(current_date.month).zfill(2),
+                            str(current_date.day).zfill(2))
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    # 使用一个临时文件名来保存接收到的音频流
+    audio_file_name = os.path.join(dir_path, f"{current_date.strftime('%H%M%S')}.wav")
+    # 处理接收到的音频数据
+    audio_data = io.BytesIO()  # 临时存储音频数据
+    try:
+        while True:
+            # 接收音频流
+            data = await websocket.receive_bytes()
+            audio_data.write(data)
+            audio_data.seek(0)  # 回到文件开始位置
+            # 使用 pydub 来处理音频数据
+            audio = AudioSegment.from_file(audio_data, format="wav")
+            audio.export(audio_file_name, format="wav")
+            # 进行语音识别（这个部分根据你的实际语音识别服务来修改）
+            result = service.transcriptBytes(data)
+            print(result)
+            # 发送识别结果
+            await websocket.send_text(f"{result}")
+
+    except WebSocketDisconnect:
+        LOGGER.info(f"WebSocket disconnected. Final audio saved as {audio_file_name}")
+        # 在断开连接时保存文件
+        with open(audio_file_name, 'wb') as f:
+            f.write(audio_data.getvalue())
+        audio_data.close()

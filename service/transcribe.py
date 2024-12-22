@@ -1,3 +1,5 @@
+import io
+
 import torch
 from utils.logger import getLogger
 from utils.singleton import singleton
@@ -73,3 +75,24 @@ class transcribeModel:
         if max_score < self.conf["simularity_threshold"]:
             return "unknown"
         return speaking
+
+    def transcriptBytes(self, data):
+        try:
+            #speakers = load()
+            # 使用 BytesIO 将字节数据转换为类似文件的对象
+            audio_io = io.BytesIO(data)
+            wav_file, sr = soundfile.read(audio_io)
+            #speaker = self.get_speaker(wav_file, speakers)
+            speaker = self.get_speaker(wav_file, self.speakers.getSpeakers())
+            sentence = self.transcribe_model.generate(
+                input=data,
+                cache={},
+                language="auto",  # "zh", "en", "yue", "ja", "ko", "nospeech"
+                use_itn=True,
+                batch_size_s=60
+                )
+            content = rich_transcription_postprocess(sentence[0]["text"])
+
+        except Exception as e:
+            #raise InferenceException(description="Description:[%s]" % e)
+        return {"speaker": speaker, "content": content}

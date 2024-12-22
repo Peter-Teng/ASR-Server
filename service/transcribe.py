@@ -94,5 +94,6 @@ class transcribeModel:
             content = rich_transcription_postprocess(sentence[0]["text"])
 
         except Exception as e:
+            self.LOGGER.info("Exception:[%s]" % e)
             #raise InferenceException(description="Description:[%s]" % e)
         return {"speaker": speaker, "content": content}

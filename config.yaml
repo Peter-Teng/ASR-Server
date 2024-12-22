@@ -1,0 +1,8 @@
+# model configuration
+transcribe_model: ./Models/iic/SenseVoiceSmall
+vad_model: ./Models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
+embedding_model: ./Models/embeddingsExtractor
+modelscope_cache: ./Models
+
+# simularity threshold
+simularity_threshold: 0.36

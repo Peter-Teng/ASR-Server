@@ -95,7 +95,7 @@ async def websocket_realtime(websocket: WebSocket):
             # 使用 pydub 来处理音频数据
             audio = AudioSegment.from_file(audio_data, format="wav")
             audio.export(audio_file_name, format="wav")
-            # 进行语音识别（这个部分根据你的实际语音识别服务来修改）
+            # 进行语音识别
             result = service.transcriptBytes(data)
             print(result)
             # 发送识别结果

@@ -1,7 +1,8 @@
+from models.embeddingExtractor import getExtractor
 from utils.logger import getLogger
 from utils.speakers import getSpeakers
 from utils.singleton import singleton
-from utils.embeddingExtractor import *
+#from utils.embeddingExtractor import *
 
 @singleton
 class speakerService:

@@ -1,16 +1,12 @@
 from fastapi import APIRouter
 from fastapi import Request
-from pydantic import BaseModel
+from entity.audio import Audio
 from service.transcribe import transcribeModel
 from utils.logger import getLogger
 import time
 
 
 router = APIRouter(prefix="/transcribe")
-
-
-class Audio(BaseModel):
-    path: str
 
 
 @router.post("/do")
@@ -24,5 +20,4 @@ async def transcribe(request:Request, audio: Audio):
     data = service.transcribe(path)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
-    LOGGER.debug(str(data))
     return {"code": "0", "msg": "success", "data": data}

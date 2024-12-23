@@ -1,11 +1,9 @@
 import torch
 from utils.logger import getLogger
 from utils.singleton import singleton
-from utils.embeddingExtractor import getExtractor
+from models.embeddingExtractor import getExtractor
 from utils.speakers import getSpeakers
-import soundfile
-import librosa
-import numpy as np
+from utils.audioUtils import load_wav_from_path_sf
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 
@@ -29,13 +27,7 @@ class transcribeModel:
         self.LOGGER.info("------------Model Initialized------------")
 
     def transcribe(self, path):
-        speech, sample_rate = soundfile.read(path)
-        # 对双声道的音频不支持，降为单声道
-        if speech.ndim == 2 and speech.shape[1] == 2:
-            speech = np.mean(speech, axis=1)
-        # resample audio to 16kHz(因为fsmn-vad模型支持16KHz的音频的分割)
-        if sample_rate != 16000:
-            speech = librosa.resample(speech, orig_sr = sample_rate, target_sr = 16000)
+        speech = load_wav_from_path_sf(path)
         chuncksInfo = self.vad_model.generate(input=speech, chunk_size=speech.shape[0])
         results = []
         i = 0

@@ -1,16 +1,11 @@
 from fastapi import APIRouter, Request
-from pydantic import BaseModel
+from entity.speaker import Speaker
 from utils.logger import getLogger
 import time
 from service.speaker import speakerService
 
 
 router = APIRouter(prefix="/speaker")
-
-
-class Speaker(BaseModel):
-    audioPath: str
-    name: str
 
 
 @router.post("/register")

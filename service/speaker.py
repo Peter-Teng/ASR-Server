@@ -1,7 +1,7 @@
 from utils.logger import getLogger
 from utils.speakers import getSpeakers
 from utils.singleton import singleton
-from utils.embeddingExtractor import *
+from models.embeddingExtractor import *
 
 @singleton
 class speakerService:
@@ -20,4 +20,6 @@ class speakerService:
     
     def delete(self, speaker):
         delete = self.speakers.deleteSpeaker(speaker)
+        if delete is None:
+            return f"Speaker {speaker} does not exist!"
         return "OK" 

@@ -1,8 +1,14 @@
 # model configuration
-transcribe_model: ./Models/iic/SenseVoiceSmall
-vad_model: ./Models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
-embedding_model: ./Models/embeddingsExtractor
-modelscope_cache: ./Models
+transcribe_model: ./models/iic/SenseVoiceSmall
+vad_model: ./models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
+embedding_model: ./models/embeddingsExtractor
+denoise_model: ./models\ZipEnhancer.onnx
+modelscope_cache: ./models
+
+# output paths
+denoised_path: ./outputs/denoised
+embedding_path: ./outputs/embedding
+
 
 # simularity threshold
 simularity_threshold: 0.36

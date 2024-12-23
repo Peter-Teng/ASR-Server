@@ -18,6 +18,7 @@ from typing_extensions import Annotated
 router = APIRouter(prefix="/transcribe")
 
 
+
 class Audio(BaseModel):
     path: str
 
@@ -32,7 +33,6 @@ async def transcribe(request:Request, audio: Audio):
     data = service.transcribe(path)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
-    LOGGER.debug(str(data))
     return {"code": "0", "msg": "success", "data": data}
 
 #单个文件语音识别

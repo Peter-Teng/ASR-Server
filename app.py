@@ -5,9 +5,10 @@ import uvicorn
 import yaml
 from service.transcribe import transcribeModel
 from service.speaker import speakerService
+from service.denoise import denoiseService
 from utils.speakers import initSpeakers
 from utils.logger import *
-from utils.embeddingExtractor import *
+from models.embeddingExtractor import *
 from utils.modelsUtils import *
 from apis.v1 import router
 from exceptions import registerExceptionHandler
@@ -50,6 +51,7 @@ async def init(app: FastAPI):
     # 初始化服务类
     transcribeModel(conf)
     speakerService(conf)
+    denoiseService(conf)
 
     LOGGER.info("------------服务初始化成功------------")
     

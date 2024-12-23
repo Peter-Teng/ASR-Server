@@ -1,10 +1,5 @@
-import io
-import os
-
-from fastapi import APIRouter, Request, File, Form
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
-from pydub import AudioSegment
-
 from utils.logger import getLogger
 import time
 from service.speaker import speakerService

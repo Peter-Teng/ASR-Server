@@ -2,7 +2,7 @@ import os
 import torch
 from utils.logger import getLogger
 from utils.singleton import singleton
-from utils.embeddingExtractor import getExtractor
+from models.embeddingExtractor import getExtractor
 
 SPEAKERS = None
 

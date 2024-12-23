@@ -6,3 +6,6 @@ modelscope_cache: ./Models
 
 # simularity threshold
 simularity_threshold: 0.36
+
+#基础配置
+file_save_base_dir: E:\project\python\VoiceWebserver\data

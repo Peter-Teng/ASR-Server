@@ -20,4 +20,7 @@ class speakerService:
     
     def delete(self, speaker):
         delete = self.speakers.deleteSpeaker(speaker)
-        return "OK" 
+        return "OK"
+
+    def list(self):
+        return self.speakers.getSpeakers()

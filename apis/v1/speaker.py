@@ -8,11 +8,10 @@ from pydub import AudioSegment
 
 from utils.logger import getLogger
 import time
-from service.speaker import speakerService
+from service.speaker import SpeakerService
 from typing_extensions import Annotated
 
 router = APIRouter(prefix="/speaker")
-
 
 @router.post("/register")
 async def registerSpeaker(request: Request, speaker: Speaker):
@@ -28,8 +27,8 @@ async def registerSpeaker(request: Request, speaker: Speaker):
     name = speaker.name
 
     start = time.time()  # 记录开始时间
-    service = speakerService()
-    data = service.register(path, name)
+    speakerService = SpeakerService()
+    data = speakerService.register(path, name)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
     return response.success(data)
@@ -45,9 +44,8 @@ async def deleteSpeaker(request: Request, speaker: str):
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
-
-    service = speakerService()
-    data = service.delete(speaker)
+    speakerService = SpeakerService()
+    data = speakerService.delete(speaker)
     return response.success(data)
 
 
@@ -58,9 +56,9 @@ async def remote_regist_speaker(request: Request,  # 获取请求对象
                                 speaker: Annotated[str, Form(description="name of speaker")],
                                 format: Annotated[str, Form(description="file format")] = "wav"):
     LOGGER = getLogger()
-    service = speakerService()
+    speakerService = SpeakerService()
     # 将音频保存为 wav 文件
-    dir_path = os.path.join(service.conf["file_save_base_dir"], "speaker")
+    dir_path = os.path.join(speakerService.conf["file_save_base_dir"], "speaker")
     # 如果目录不存在，则创建
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -74,7 +72,7 @@ async def remote_regist_speaker(request: Request,  # 获取请求对象
     audio.export(audio_file_name, format=format)
     LOGGER.info("[%s] - [%s] 开始注册说话人 - 保存到 [%s]" % (request.client.host, request.url.path, audio_file_name))
     start = time.time()  # 记录开始时间
-    data = service.register(audio_file_name, speaker)
+    data = speakerService.register(audio_file_name, speaker)
     elapse_time = time.time() - start
     LOGGER.info("说话人注册成功 : %2.2f ms" % (elapse_time * 1000))
     LOGGER.debug(str(data))
@@ -89,6 +87,6 @@ async def listSpeakers(request: Request):
     @param {Request} request 请求基本信息对象
     @return {respose} 所有说话人名称、pt文件路径信息
     '''
-    service = speakerService()
-    speakers = service.list()
+    speakerService = SpeakerService()
+    speakers = speakerService.list()
     return response.success(speakers)

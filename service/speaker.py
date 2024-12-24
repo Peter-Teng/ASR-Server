@@ -1,3 +1,4 @@
+import copy
 from models.embeddingExtractor import getExtractor
 from utils.logger import getLogger
 from utils.speakers import getSpeakers
@@ -5,7 +6,7 @@ from utils.singleton import singleton
 
 
 @singleton
-class speakerService:
+class SpeakerService:
     def __init__(self, conf) -> None:
         '''
         @description: 初始化讲话人服务对象
@@ -49,7 +50,8 @@ class speakerService:
         @return {List} 讲话人列表数据
         @param {*} self
         '''
-        data = self.speakers.getSpeakers()
+        # 深拷贝一份数据再进行处理
+        data = copy.deepcopy(self.speakers.getSpeakers())
         for speaker in data:
             speaker.pop("embedding")
         return data

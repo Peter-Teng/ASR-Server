@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 from entity.audio import Audio
 from entity.responseObject import response
 from utils.logger import getLogger
-from service.denoise import denoiseService
+from service.denoise import DenoiseService
 import time
 
 
@@ -21,8 +21,8 @@ async def denoiseAndSave(request:Request, audio: Audio):
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     
     start = time.time()  # 记录开始时间
-    service = denoiseService()
-    _, savePath = service.denoiseFile(path=audio.path, save=True)
+    denoiseService = DenoiseService()
+    _, savePath = denoiseService.denoiseFile(path=audio.path, save=True)
     data = {}
     data["path"] = savePath
     elapse_time = time.time() - start

@@ -10,7 +10,7 @@ from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 
 @singleton
-class transcribeModel:
+class TranscribeService:
     def __init__(self, conf) -> None:
         self.LOGGER = getLogger()
         self.speakers = getSpeakers()
@@ -29,14 +29,16 @@ class transcribeModel:
         self.LOGGER.info("------------Model Initialized------------")
 
     
-    def transcribe(self, path):
+    def transcribe(self, path, speech=None):
         '''
         @description: 语音识别转录
         @return {*}
         @param {*} self
-        @param {*} path 语音文件路径
+        @param {str} path 语音文件路径
+        @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
         '''
-        speech = load_wav_from_path_sf(path)
+        if speech is None:
+            speech = load_wav_from_path_sf(path)
         chuncksInfo = self.vad_model.generate(input=speech, chunk_size=speech.shape[0])
         results = []
         i = 0
@@ -56,8 +58,8 @@ class transcribeModel:
             content = rich_transcription_postprocess(sentence[0]["text"])
             results.append({"speaker": speaker, "content": content})
             i += 1 
-        ret = []
-        ret.append({"transcribe_results" : results})
+        ret = {}
+        ret["transcribe_results"] = results
         return ret
     
     

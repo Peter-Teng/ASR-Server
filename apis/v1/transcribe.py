@@ -10,7 +10,8 @@ from entity.responseObject import response
 from pydub import AudioSegment
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from service.transcribe import transcribeModel
+from service.transcribe import TranscribeService
+from service.denoise import DenoiseService
 from utils.logger import getLogger
 import time
 from typing_extensions import Annotated
@@ -30,10 +31,31 @@ async def transcribe(request:Request, audio: Audio):
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     path = audio.path
-    
+    transcribeService = TranscribeService()
     start = time.time()  # 记录开始时间
-    service = transcribeModel()
-    data = service.transcribe(path)
+    data = transcribeService.transcribe(path)
+    elapse_time = time.time() - start
+    LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
+    return response.success(data)
+
+
+
+@router.post("/denoised")
+async def denoiseAndTranscribe(request:Request, audio: Audio):
+    '''
+    @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法）
+    @param {Request} request 请求基本信息对象
+    @param {Audio} audio 音频对象（路径）
+    @return {respose} 语音识别内容
+    '''
+    LOGGER = getLogger()
+    LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
+    path = audio.path
+    start = time.time()  # 记录开始时间
+    transcribeService = TranscribeService()
+    denoiseService = DenoiseService()
+    speech, _ = denoiseService.denoiseFile(path=path, save=False)
+    data = transcribeService.transcribe(path=path, speech=speech)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
     return response.success(data)
@@ -50,7 +72,7 @@ async def audio_to_text(request: Request,  # 获取请求对象
     @return {respose}
     '''
     LOGGER = getLogger()
-    service = transcribeModel()
+    transcribeService = TranscribeService()
     current_date = datetime.now()
     if lang == "":
         lang = "auto"
@@ -59,7 +81,7 @@ async def audio_to_text(request: Request,  # 获取请求对象
     else:
         key = keys.split(".")
     # 将音频保存为 wav 文件
-    dir_path = os.path.join(service.conf["file_save_base_dir"], str(current_date.year), str(current_date.month).zfill(2),
+    dir_path = os.path.join(transcribeService.conf["file_save_base_dir"], str(current_date.year), str(current_date.month).zfill(2),
                              str(current_date.day).zfill(2))
     # 如果目录不存在，则创建它
     if not os.path.exists(dir_path):
@@ -73,7 +95,7 @@ async def audio_to_text(request: Request,  # 获取请求对象
     LOGGER.info("[%s] - [%s] 开始语音识别 [%s]" % (request.client.host, request.url.path, audio_file_name))
     start = time.time()  # 记录开始时间
 
-    data = service.transcribe(audio_file_name)
+    data = transcribeService.transcribe(audio_file_name)
     elapse_time = time.time() - start
     LOGGER.info("识别成功，用时 : %2.2f ms" % (elapse_time * 1000))
     LOGGER.debug(str(data))
@@ -85,9 +107,9 @@ async def websocket_realtime(websocket: WebSocket):
     await websocket.accept()
     LOGGER = getLogger()
     current_date = datetime.now()
-    service = transcribeModel()
+    transcribeService = TranscribeService()
     # 设置文件保存目录
-    dir_path = os.path.join(service.conf["file_save_base_dir"], str(current_date.year), str(current_date.month).zfill(2),
+    dir_path = os.path.join(transcribeService.conf["file_save_base_dir"], str(current_date.year), str(current_date.month).zfill(2),
                             str(current_date.day).zfill(2))
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -105,7 +127,7 @@ async def websocket_realtime(websocket: WebSocket):
             audio = AudioSegment.from_file(audio_data, format="wav")
             audio.export(audio_file_name, format="wav")
             # 进行语音识别
-            result = service.transcriptBytes(data)
+            result = transcribeService.transcriptBytes(data)
             print(result)
             # 发送识别结果
             await websocket.send_text(f"{result}")

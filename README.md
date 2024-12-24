@@ -41,17 +41,15 @@ The result would be:
 ```json
 {
     "code": "0",
-    "data": [
-        {
-            "transcribe_results": [
-                {
-                    "content": "Some Sentences",
-                    "speaker": "Somebody"
-                },
-                ...
-            ]
-        }
-    ],
+    "data": {
+        "transcribe_results": [
+            {
+                "content": "Some Sentences",
+                "speaker": "Somebody"
+            },
+            ...
+        ]
+    },
     "msg": "success"
 }
 ```

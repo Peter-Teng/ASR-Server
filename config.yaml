@@ -12,6 +12,8 @@ embedding_path: ./outputs/embedding
 
 # simularity threshold 讲话人的识别阈值
 simularity_threshold: 0.36
+# 去噪模型每个片段的长度(ms)
+fragment_length: 1000
 
 #基础配置
 file_save_base_dir: E:\project\python\VoiceWebserver\data

@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 import argparse
 import uvicorn
 import yaml
-from service.transcribe import transcribeModel
-from service.speaker import speakerService
-from service.denoise import denoiseService
+from service.transcribe import TranscribeService
+from service.speaker import SpeakerService
+from service.denoise import DenoiseService
 from utils.speakers import initSpeakers
 from utils.logger import *
 from models.embeddingExtractor import *
@@ -49,9 +49,9 @@ async def init(app: FastAPI):
         args.device = 'cuda:%s' % args.device
     
     # 初始化服务类
-    transcribeModel(conf)
-    speakerService(conf)
-    denoiseService(conf)
+    TranscribeService(conf)
+    SpeakerService(conf)
+    DenoiseService(conf)
 
     LOGGER.info("------------服务初始化成功------------")
     

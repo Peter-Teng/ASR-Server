@@ -5,7 +5,14 @@ import torchaudio
 import numpy as np
 
 
+
 def load_wav_from_path_sf(path, target_sample_rate=16000):
+    '''
+    @description: 使用soundfile库读取wav文件
+    @param {*} path wav文件路径
+    @param {*} target_sample_rate 目标采样率
+    @return {np.ndarray} 返回的wav文件数组
+    '''
     speech, sample_rate = soundfile.read(path)
     # 对双声道的音频不支持，降为单声道
     if speech.ndim == 2 and speech.shape[1] == 2:
@@ -17,6 +24,12 @@ def load_wav_from_path_sf(path, target_sample_rate=16000):
 
 
 def load_wav_from_path_torch(path, target_sample_rate=16000):
+    '''
+    @description: 使用torchaudio库读取wav文件
+    @param {*} path wav文件路径
+    @param {*} target_sample_rate 目标采样率
+    @return {np.ndarray} 返回的wav文件数组
+    '''
     speech, sample_rate = torchaudio.load(path)
     # 对双声道的音频不支持，降为单声道
     if speech.ndim == 2 and speech.shape[0] == 2:
@@ -34,13 +47,12 @@ def save_wav(data, path, sample_rate=16000):
 
 def create_wav_header(dataflow, sample_rate=16000, num_channels=1, bits_per_sample=16):
     """
-    创建WAV文件头的字节串。
-
-    :param dataflow: 音频bytes数据（以字节为单位）。
-    :param sample_rate: 采样率，默认16000。
-    :param num_channels: 声道数，默认1（单声道）。
-    :param bits_per_sample: 每个样本的位数，默认16。
-    :return: WAV文件头的字节串和音频bytes数据。
+    @description 创建WAV文件头的字节串。
+    @param dataflow: 音频bytes数据（以字节为单位）。
+    @param sample_rate: 采样率，默认16000。
+    @param num_channels: 声道数，默认1（单声道）。
+    @param bits_per_sample: 每个样本的位数，默认16。
+    @return: WAV文件头的字节串和音频bytes数据。
     """
     total_data_len = len(dataflow)
     byte_rate = sample_rate * num_channels * bits_per_sample // 8

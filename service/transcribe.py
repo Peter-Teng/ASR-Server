@@ -28,7 +28,14 @@ class transcribeModel:
         self.extractor = getExtractor()
         self.LOGGER.info("------------Model Initialized------------")
 
+    
     def transcribe(self, path):
+        '''
+        @description: 语音识别转录
+        @return {*}
+        @param {*} self
+        @param {*} path 语音文件路径
+        '''
         speech = load_wav_from_path_sf(path)
         chuncksInfo = self.vad_model.generate(input=speech, chunk_size=speech.shape[0])
         results = []
@@ -55,6 +62,13 @@ class transcribeModel:
     
     
     def get_speaker(self, speech, speakers):
+        '''
+        @description: 辨认该段音频是哪个人讲的话
+        @return {*}
+        @param {*} self
+        @param {*} speech 音频数组数据
+        @param {*} speakers 讲话人列表
+        '''
         speaking_embedding, _ = self.extractor.compute_embedding(speech, save=False)
         max_score = 0
         speaking = "unknown"
@@ -67,6 +81,7 @@ class transcribeModel:
         if max_score < self.conf["simularity_threshold"]:
             return "unknown"
         return speaking
+
 
     def transcriptBytes(self, data):
         try:

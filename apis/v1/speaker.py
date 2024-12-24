@@ -2,7 +2,8 @@ import io
 import os
 
 from fastapi import APIRouter, Request, File, Form
-from pydantic import BaseModel
+from entity.speaker import Speaker
+from entity.responseObject import response
 from pydub import AudioSegment
 
 from utils.logger import getLogger
@@ -13,13 +14,14 @@ from typing_extensions import Annotated
 router = APIRouter(prefix="/speaker")
 
 
-class Speaker(BaseModel):
-    audioPath: str
-    name: str
-
-
 @router.post("/register")
 async def registerSpeaker(request: Request, speaker: Speaker):
+    '''
+    @description: 使用json传入路径和说话人名称，注册说话人（POST方法）
+    @param {Request} request 请求基本信息对象
+    @param {Speaker} speaker 说话人对象
+    @return {respose} 是否成功
+    '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     path = speaker.audioPath
@@ -30,17 +32,23 @@ async def registerSpeaker(request: Request, speaker: Speaker):
     data = service.register(path, name)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
-    return {"code": "0", "msg": "success", "data": data}
+    return response.success(data)
 
 
 @router.delete("/{speaker}")
 async def deleteSpeaker(request: Request, speaker: str):
+    '''
+    @description: 从URL中传入说话人的名称，删除该说话人（DELETE方法）
+    @param {Request} request 请求基本信息对象
+    @param {str} speaker 说话人名称
+    @return {respose} 是否成功
+    '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
 
     service = speakerService()
     data = service.delete(speaker)
-    return {"code": "0", "msg": "success", "data": data}
+    return response.success(data)
 
 
 #远程注册说话人
@@ -70,11 +78,17 @@ async def remote_regist_speaker(request: Request,  # 获取请求对象
     elapse_time = time.time() - start
     LOGGER.info("说话人注册成功 : %2.2f ms" % (elapse_time * 1000))
     LOGGER.debug(str(data))
-    return {"code": "0", "describe": "success", "data": data}
+    return response.success(data)
 
-#获取已注册列表
+
+
 @router.get("/list")
 async def listSpeakers(request: Request):
+    '''
+    @description: 列举所有已注册说话人列表（GET方法）
+    @param {Request} request 请求基本信息对象
+    @return {respose} 所有说话人名称、pt文件路径信息
+    '''
     service = speakerService()
     speakers = service.list()
-    return {"code": "0", "describe": "success", "data": speakers}
+    return response.success(speakers)

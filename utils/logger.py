@@ -10,10 +10,19 @@ level_relations = {'DEBUG':logging.DEBUG,'INFO':logging.INFO,'WARNING':logging.W
 LOGGER = None
 
 def initLogger():
+    '''
+    @description: 初始化日志对象
+    @return {None} 
+    '''    
     global LOGGER
     LOGGER = Logger(level="INFO")
 
+
 def getLogger():
+    '''
+    @description: 返回日志对象
+    @return {Logger} 日志对象
+    '''    
     global LOGGER
     return LOGGER.logger
 

@@ -1,6 +1,7 @@
 import os
 import sys
 import pathlib
+from typing import Tuple
 import torch
 
 from utils.audioUtils import load_wav_from_path_torch
@@ -22,7 +23,13 @@ def getExtractor():
     return extractor
 
 class Extractor:
-    def __init__(self, config) -> None:
+    def __init__(self, config) -> None:   
+        '''
+        @description: 初始化embedding提取器
+        @param {*} self
+        @param {*} config 提取器的配置文件
+        @return {None}
+        '''   
         self.LOGGER = getLogger()
         self.ERes2Net_Large_3D_Speaker = {
         'obj': 'speakerlab.models.eres2net.ERes2Net.ERes2Net',
@@ -65,7 +72,18 @@ class Extractor:
         self.embedding_model.eval()
         self.feature_extractor = FBank(80, sample_rate=16000, mean_nor=True)
 
-    def compute_embedding(self, wav_file, speaker="unknown", save=True):
+    
+
+    
+    def compute_embedding(self, wav_file, speaker="unknown", save=True) -> Tuple[torch.Tensor, str]:
+        '''
+        @description: 计算音频文件的embedding
+        @param {*} self
+        @param {str} wav_file 音频文件（路径或NumPy数组）
+        @param {str} speaker 说话人名称
+        @param {boolean} save 是否保存
+        @return {Tuple[torch.Tensor, str]} embedding及其保存地址
+        '''
         if isinstance(wav_file, str):
             # load wav
             wav = load_wav_from_path_torch(wav_file)

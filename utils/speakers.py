@@ -18,6 +18,10 @@ def getSpeakers():
 @singleton
 class Speakers:
     def __init__(self):
+        '''
+        @description: 初始化Speakers工具
+        @return {None}
+        '''
         self.data = []
         self.map = {}
         self.logger = getLogger()
@@ -33,10 +37,23 @@ class Speakers:
 
                 
     def getSpeakers(self):
+        '''
+        @description: 获取讲话人数据
+        @param {self}
+        @return {List} 讲话人的所有数据
+        '''
         return self.data
 
     
     def addSpeaker(self, name, embedding, savePath):
+        '''
+        @description: 添加讲话人
+        @return {None}
+        @param {*} self
+        @param {str} name 讲话人名字
+        @param {torch.Tensor} embedding 讲话人的embedding
+        @param {str} savePath 保存路径
+        '''
         if name in self.map:
             self.logger.warning(f"Speaker {name} already exists.")
             return
@@ -47,8 +64,14 @@ class Speakers:
         self.data.append(speaker)
         self.map[name] = speaker
         
-    
+     
     def deleteSpeaker(self, name):
+        '''
+        @description: 删除讲话人
+        @return {dist} 被删除的讲话人dist
+        @param {*} self
+        @param {str} name 拟删除的讲话人姓名
+        '''
         if name not in self.map:
             return None
         deleted = self.map[name]

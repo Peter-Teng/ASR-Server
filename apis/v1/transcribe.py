@@ -5,7 +5,8 @@ from datetime import datetime
 from fastapi import APIRouter
 from fastapi import Request
 from fastapi import File, Form
-from pydantic import BaseModel
+from entity.audio import Audio
+from entity.responseObject import response
 from pydub import AudioSegment
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
@@ -18,12 +19,14 @@ from typing_extensions import Annotated
 router = APIRouter(prefix="/transcribe")
 
 
-
-class Audio(BaseModel):
-    path: str
-
 @router.post("/do")
 async def transcribe(request:Request, audio: Audio):
+    '''
+    @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法）
+    @param {Request} request 请求基本信息对象
+    @param {Audio} audio 音频对象（路径）
+    @return {respose} 语音识别内容
+    '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     path = audio.path
@@ -33,7 +36,8 @@ async def transcribe(request:Request, audio: Audio):
     data = service.transcribe(path)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
-    return {"code": "0", "msg": "success", "data": data}
+    return response.success(data)
+
 
 #单个文件语音识别
 @router.post("/file")
@@ -41,6 +45,10 @@ async def audio_to_text(request: Request,  # 获取请求对象
                         file: Annotated[bytes, File(description="wav or mp3 audios in 16KHz")],
                         keys: Annotated[str, Form(description="name of each audio joined with comma")],
                         lang: Annotated[str, Form(description="language of audio content")] = "auto"):
+    '''
+    @description: 对以FORM格式传入的音频文件进行语音识别（POST方法）
+    @return {respose}
+    '''
     LOGGER = getLogger()
     service = transcribeModel()
     current_date = datetime.now()
@@ -69,7 +77,8 @@ async def audio_to_text(request: Request,  # 获取请求对象
     elapse_time = time.time() - start
     LOGGER.info("识别成功，用时 : %2.2f ms" % (elapse_time * 1000))
     LOGGER.debug(str(data))
-    return {"code": "0", "describe": "success", "data": data}
+    return response.success(data)
+
 
 @router.websocket("/ws/realtime")
 async def websocket_realtime(websocket: WebSocket):

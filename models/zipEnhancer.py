@@ -4,6 +4,9 @@ from modelscope.models.audio.ans.zipenhancer import mag_pha_stft, mag_pha_istft
 
 
 class zipEnhancerModel:
+    '''
+    @description: ZipEnhancer音频去噪模型（试用模型）
+    '''
     def __init__(self, conf, providers=None):
         self.conf = conf
         self.onnx_model = onnxruntime.InferenceSession(conf["denoise_model"], providers=providers)

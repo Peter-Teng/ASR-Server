@@ -1,16 +1,16 @@
-# model configuration
+# model configuration 模型路径
 transcribe_model: ./models/iic/SenseVoiceSmall
 vad_model: ./models/iic/speech_fsmn_vad_zh-cn-16k-common-pytorch
 embedding_model: ./models/embeddingsExtractor
 denoise_model: ./models\ZipEnhancer.onnx
 modelscope_cache: ./models
 
-# output paths
+# output paths 输出路径
 denoised_path: ./outputs/denoised
 embedding_path: ./outputs/embedding
 
 
-# simularity threshold
+# simularity threshold 讲话人的识别阈值
 simularity_threshold: 0.36
 
 #基础配置

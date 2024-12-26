@@ -28,7 +28,7 @@ def getLogger():
 
 @singleton
 class Logger():
-    def __init__(self, level="INFO", when='w4', backCount=25, fmt=' [%(levelname)s][%(asctime)s] - %(message)s'):
+    def __init__(self, level="INFO", when='w4', backCount=25, fmt=' [%(levelname)s][Worker:%(process)d][%(asctime)s] - %(message)s'):
         logPath = os.path.join(os.getcwd(), 'outputs', 'logs')
         if not os.path.exists(logPath):
             os.makedirs(logPath)

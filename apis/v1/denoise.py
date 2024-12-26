@@ -10,7 +10,7 @@ router = APIRouter(prefix="/denoise")
 
 
 @router.post("/do")
-async def denoiseAndSave(request:Request, audio: Audio):
+def denoiseAndSave(request:Request, audio: Audio):
     '''
     @description: 对传入路径的音频文件进行去噪并保存（POST方法）
     @param {Request} request 请求基本信息对象

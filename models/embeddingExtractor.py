@@ -31,6 +31,7 @@ class Extractor:
         @return {None}
         '''   
         self.LOGGER = getLogger()
+        self.device = config["device"]
         self.ERes2Net_Large_3D_Speaker = {
         'obj': 'speakerlab.models.eres2net.ERes2Net.ERes2Net',
         'args': {
@@ -55,14 +56,6 @@ class Extractor:
         pretrained_model_dir = os.path.join(self.base_dir, self.conf['model_pt'])
         pretrained_state = torch.load(pretrained_model_dir, map_location='cpu')
 
-        if torch.cuda.is_available():
-            msg = 'Using gpu for inference.'
-            self.LOGGER.info(f'[INFO]: {msg}')
-            self.device = torch.device('cuda')
-        else:
-            msg = 'No cuda device is detected. Using cpu.'
-            self.LOGGER.info(f'[INFO]: {msg}')
-            self.device = torch.device('cpu')
 
         # load model
         self.model = self.conf['model']

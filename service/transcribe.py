@@ -14,7 +14,6 @@ class TranscribeService:
     def __init__(self, conf) -> None:
         self.LOGGER = getLogger()
         self.speakers = getSpeakers()
-        self.LOGGER.info("------------NOW Initializing Model------------")
         self.conf = conf
         self.transcribe_model_id = self.conf["transcribe_model"]
         self.vad_model_id = self.conf["vad_model"]
@@ -22,11 +21,10 @@ class TranscribeService:
             model=self.transcribe_model_id,
             trust_remote_code=False,
             disable_update=True,
-            device="cuda:0",
-        )        
-        self.vad_model = AutoModel(model=self.vad_model_id, trust_remote_code=False, disable_update=True, device="cuda:0",)
+            device=conf["device"],
+        )     
+        self.vad_model = AutoModel(model=self.vad_model_id, trust_remote_code=False, disable_update=True, device=conf["device"],)
         self.extractor = getExtractor()
-        self.LOGGER.info("------------Model Initialized------------")
 
     
     def transcribe(self, path, speech=None):

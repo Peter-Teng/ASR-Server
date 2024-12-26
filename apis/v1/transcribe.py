@@ -21,7 +21,7 @@ router = APIRouter(prefix="/transcribe")
 
 
 @router.post("/do")
-async def transcribe(request:Request, audio: Audio):
+def transcribe(request:Request, audio: Audio):
     '''
     @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法）
     @param {Request} request 请求基本信息对象
@@ -41,7 +41,7 @@ async def transcribe(request:Request, audio: Audio):
 
 
 @router.post("/denoised")
-async def denoiseAndTranscribe(request:Request, audio: Audio):
+def denoiseAndTranscribe(request:Request, audio: Audio):
     '''
     @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法）
     @param {Request} request 请求基本信息对象
@@ -63,7 +63,7 @@ async def denoiseAndTranscribe(request:Request, audio: Audio):
 
 #单个文件语音识别
 @router.post("/file")
-async def audio_to_text(request: Request,  # 获取请求对象
+def audio_to_text(request: Request,  # 获取请求对象
                         file: Annotated[bytes, File(description="wav or mp3 audios in 16KHz")],
                         keys: Annotated[str, Form(description="name of each audio joined with comma")],
                         lang: Annotated[str, Form(description="language of audio content")] = "auto"):

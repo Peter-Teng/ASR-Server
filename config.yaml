@@ -17,3 +17,4 @@ fragment_length: 1000
 
 #基础配置
 file_save_base_dir: E:\project\python\VoiceWebserver\data
+device: cpu

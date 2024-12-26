@@ -14,7 +14,7 @@ from typing_extensions import Annotated
 router = APIRouter(prefix="/speaker")
 
 @router.post("/register")
-async def registerSpeaker(request: Request, speaker: Speaker):
+def registerSpeaker(request: Request, speaker: Speaker):
     '''
     @description: 使用json传入路径和说话人名称，注册说话人（POST方法）
     @param {Request} request 请求基本信息对象
@@ -35,7 +35,7 @@ async def registerSpeaker(request: Request, speaker: Speaker):
 
 
 @router.delete("/{speaker}")
-async def deleteSpeaker(request: Request, speaker: str):
+def deleteSpeaker(request: Request, speaker: str):
     '''
     @description: 从URL中传入说话人的名称，删除该说话人（DELETE方法）
     @param {Request} request 请求基本信息对象
@@ -51,7 +51,7 @@ async def deleteSpeaker(request: Request, speaker: str):
 
 #远程注册说话人
 @router.post("/remoteRegister")
-async def remote_regist_speaker(request: Request,  # 获取请求对象
+def remote_regist_speaker(request: Request,  # 获取请求对象
                                 file: Annotated[bytes, File(description="wav or mp3 audios in 16KHz")],
                                 speaker: Annotated[str, Form(description="name of speaker")],
                                 format: Annotated[str, Form(description="file format")] = "wav"):
@@ -81,12 +81,14 @@ async def remote_regist_speaker(request: Request,  # 获取请求对象
 
 
 @router.get("/list")
-async def listSpeakers(request: Request):
+def listSpeakers(request: Request):
     '''
     @description: 列举所有已注册说话人列表（GET方法）
     @param {Request} request 请求基本信息对象
     @return {respose} 所有说话人名称、pt文件路径信息
     '''
+    LOGGER = getLogger()
+    LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     speakerService = SpeakerService()
     speakers = speakerService.list()
     return response.success(speakers)

@@ -6,6 +6,8 @@ from entity.speaker import Speaker
 from entity.responseObject import response
 from pydub import AudioSegment
 
+from exceptions.application import ApiException
+from utils.exceptionConstants import *
 from utils.logger import getLogger
 import time
 from service.speaker import SpeakerService
@@ -25,7 +27,8 @@ def registerSpeaker(request: Request, speaker: Speaker):
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     path = speaker.audioPath
     name = speaker.name
-
+    if not os.path.exists(path):
+        raise ApiException(FILE_NOT_FOUND)
     start = time.time()  # 记录开始时间
     speakerService = SpeakerService()
     data = speakerService.register(path, name)

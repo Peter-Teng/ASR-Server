@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from .application import apiExceptionHandler, ApiException
 from .validation import validationExceptionHandler
 from .http import httpExceptionHandler
 from .sysException import sysExceptionHandler
@@ -8,6 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
  
 """ 统一注册错误处理器"""
 def registerExceptionHandler(app: FastAPI):
+    app.add_exception_handler(ApiException, apiExceptionHandler)
     # 注册参数验证错误,并覆盖模式RequestValidationError
     app.add_exception_handler(RequestValidationError, validationExceptionHandler)
     # 错误处理StarletteHTTPException

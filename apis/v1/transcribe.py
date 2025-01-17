@@ -10,9 +10,11 @@ from entity.responseObject import response
 from pydub import AudioSegment
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
+from exceptions.application import ApiException
 from service.transcribe import TranscribeService
 from service.denoise import DenoiseService
 from utils.logger import getLogger
+from utils.exceptionConstants import *
 import time
 from typing_extensions import Annotated
 
@@ -31,6 +33,8 @@ def transcribe(request:Request, audio: Audio):
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     path = audio.path
+    if not os.path.exists(path):
+        raise ApiException(FILE_NOT_FOUND)
     transcribeService = TranscribeService()
     start = time.time()  # 记录开始时间
     data = transcribeService.transcribe(path)
@@ -50,6 +54,8 @@ def denoiseAndTranscribe(request:Request, audio: Audio):
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
+    if not os.path.exists(path):
+        raise ApiException(FILE_NOT_FOUND)
     path = audio.path
     start = time.time()  # 记录开始时间
     transcribeService = TranscribeService()

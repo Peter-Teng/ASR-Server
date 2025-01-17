@@ -1,6 +1,9 @@
+import os
 from fastapi import APIRouter, Request
 from entity.audio import Audio
 from entity.responseObject import response
+from exceptions.application import ApiException
+from utils.exceptionConstants import *
 from utils.logger import getLogger
 from service.denoise import DenoiseService
 import time
@@ -19,7 +22,8 @@ def denoiseAndSave(request:Request, audio: Audio):
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
-    
+    if not os.path.exists(audio.path):
+        raise ApiException(FILE_NOT_FOUND)
     start = time.time()  # 记录开始时间
     denoiseService = DenoiseService()
     _, savePath = denoiseService.denoiseFile(path=audio.path, save=True)

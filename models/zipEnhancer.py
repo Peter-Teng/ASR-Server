@@ -1,15 +1,24 @@
 import onnxruntime
 import torch
 from modelscope.models.audio.ans.zipenhancer import mag_pha_stft, mag_pha_istft
-
+from utils.logger import getLogger
 
 class zipEnhancerModel:
     '''
     @description: ZipEnhancer音频去噪模型（试用模型）
     '''
-    def __init__(self, conf, providers=None):
+    def __init__(self, conf):
         self.conf = conf
-        self.onnx_model = onnxruntime.InferenceSession(conf["denoise_model"], providers=providers)
+        self.LOGGER = getLogger()
+        self.onnx_model = onnxruntime.InferenceSession(conf["denoise_model"])
+        if self.conf["device"].startswith("cuda"):
+            gpu_id = self.conf["device"].split(":")[-1]
+            self.onnx_model.set_providers(['CUDAExecutionProvider'], provider_options=[{'device_id': int(gpu_id)}])
+        if 'CUDAExecutionProvider' in self.onnx_model.get_providers():
+            self.LOGGER.info(f'[INFO]: The zipEnhancer is using GPU.')
+        else:
+            self.LOGGER.info(f'[INFO]: The zipEnhancer is using CPU.')
+
 
     def to_numpy(self, tensor):
         return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()

@@ -23,7 +23,9 @@ class TranscribeService:
             disable_update=True,
             device=conf["device"],
         )     
-        self.vad_model = AutoModel(model=self.vad_model_id, trust_remote_code=False, disable_update=True, device=conf["device"],)
+        self.vad_model = AutoModel(model=self.vad_model_id, trust_remote_code=False, disable_update=True, device=conf["device"])
+        self.LOGGER.info(f'[INFO]: The transcribe model is using {conf["device"]}.')
+        self.LOGGER.info(f'[INFO]: The vad model is using {conf["device"]}.')
         self.extractor = getExtractor()
 
     

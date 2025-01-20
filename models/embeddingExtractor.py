@@ -64,6 +64,10 @@ class Extractor:
         self.embedding_model.to(self.device)
         self.embedding_model.eval()
         self.feature_extractor = FBank(80, sample_rate=16000, mean_nor=True)
+        # confirm the device
+        for param in self.embedding_model.parameters():
+            self.LOGGER.info(f'[INFO]: The embedding extractor is using {param.device}.')
+            break
 
     
 

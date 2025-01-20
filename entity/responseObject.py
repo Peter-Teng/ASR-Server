@@ -8,7 +8,7 @@ class response:
     data: None
     
     @staticmethod
-    def success(data):
+    def success(data = None):
         '''
         @description: 标准化输出成功对象
         @return {response} 输出对象

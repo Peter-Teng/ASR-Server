@@ -7,7 +7,7 @@ from entity.responseObject import response
 from pydub import AudioSegment
 
 from exceptions.application import ApiException
-from utils.exceptionConstants import *
+from utils.constants import *
 from utils.logger import getLogger
 import time
 from service.speaker import SpeakerService

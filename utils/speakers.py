@@ -54,9 +54,6 @@ class Speakers:
         @param {torch.Tensor} embedding 讲话人的embedding
         @param {str} savePath 保存路径
         '''
-        if name in self.map:
-            self.logger.warning(f"Speaker {name} already exists.")
-            return
         speaker = {}
         speaker["name"] = name
         speaker["embedding"] = embedding
@@ -72,10 +69,17 @@ class Speakers:
         @param {*} self
         @param {str} name 拟删除的讲话人姓名
         '''
-        if name not in self.map:
-            return None
         deleted = self.map[name]
         self.data.remove(deleted)
         self.map.pop(name)
         os.remove(deleted["file"])
         return deleted
+    
+    def consists(self, name):
+        '''
+        @description: 判断该讲话人是否存在
+        @return {bool} 是否存在
+        @param {*} self
+        @param {str} name 讲话人姓名
+        '''
+        return name in self.map

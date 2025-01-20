@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request
 from entity.audio import Audio
 from entity.responseObject import response
 from exceptions.application import ApiException
-from utils.exceptionConstants import *
+from utils.constants import *
 from utils.logger import getLogger
 from service.denoise import DenoiseService
 import time

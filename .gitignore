@@ -3,6 +3,7 @@
 */__pycache__/
 */*/__pycache__/
 */*/*/__pycache__/
+.pytest_cache/
 .DS_Store
 init_model/
 *.tar.gz

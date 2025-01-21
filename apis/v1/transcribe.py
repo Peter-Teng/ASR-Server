@@ -25,7 +25,7 @@ router = APIRouter(prefix="/transcribe")
 @router.post("/do")
 def transcribe(request:Request, audio: Audio):
     '''
-    @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法）
+    @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法），使用fsmn_vad_zh-cn-16k模型进行语音分割
     @param {Request} request 请求基本信息对象
     @param {Audio} audio 音频对象（路径）
     @return {respose} 语音识别内容
@@ -43,11 +43,31 @@ def transcribe(request:Request, audio: Audio):
     return response.success(data)
 
 
+@router.post("/diarize")
+def transcribe(request:Request, audio: Audio):
+    '''
+    @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法）,使用3D-Speaker下的Speech Diarization模型进行分割
+    @param {Request} request 请求基本信息对象
+    @param {Audio} audio 音频对象（路径）
+    @return {respose} 语音识别内容
+    '''
+    LOGGER = getLogger()
+    LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
+    path = audio.path
+    if not os.path.exists(path):
+        raise ApiException(FILE_NOT_FOUND)
+    transcribeService = TranscribeService()
+    start = time.time()  # 记录开始时间
+    data = transcribeService.transcribe_with_diarization(path)
+    elapse_time = time.time() - start
+    LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
+    return response.success(data)
+
 
 @router.post("/denoised")
 def denoiseAndTranscribe(request:Request, audio: Audio):
     '''
-    @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法）
+    @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法），使用ZipEnhancer模型去噪
     @param {Request} request 请求基本信息对象
     @param {Audio} audio 音频对象（路径）
     @return {respose} 语音识别内容

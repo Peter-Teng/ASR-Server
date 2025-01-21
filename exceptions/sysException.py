@@ -8,5 +8,5 @@ from entity.responseObject import response
  
 """自定义全局系统错误"""
 async def sysExceptionHandler(request: Request, exc: Exception):
-    msg = "Internal system error!"
+    msg = f"Internal system error! [{repr(exc)}]"
     return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(response.failure("-1", msg))) 

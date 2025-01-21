@@ -1,6 +1,7 @@
 import io
 import soundfile
 import torch
+from models.Speaker.speakerlab.bin.infer_diarization import Diarization3Dspeaker
 from utils.logger import getLogger
 from utils.singleton import singleton
 from models.embeddingExtractor import getExtractor
@@ -24,6 +25,8 @@ class TranscribeService:
             device=conf["device"],
         )     
         self.vad_model = AutoModel(model=self.vad_model_id, trust_remote_code=False, disable_update=True, device=conf["device"])
+        self.diarization_model = Diarization3Dspeaker(device=conf["device"], model_cache_dir=conf["modelscope_cache"])
+        self.LOGGER.info(f'[INFO]: The diarization model is using {conf["device"]}.')
         self.LOGGER.info(f'[INFO]: The transcribe model is using {conf["device"]}.')
         self.LOGGER.info(f'[INFO]: The vad model is using {conf["device"]}.')
         self.extractor = getExtractor()
@@ -46,6 +49,40 @@ class TranscribeService:
             # 计算音频开始和结束的时间（chunk[0]是开始时间，[1]是结束的时间，单位都是毫秒，所以分割点要×16000（采样率）再÷1000）
             start = chunk[0] * 16
             end = chunk[1] * 16
+            speaker = self.get_speaker(speech[start:end], self.speakers.getSpeakers())
+            sentence = self.transcribe_model.generate(
+                input=speech[start:end],
+                cache={},
+                language="auto",  # "zh", "en", "yue", "ja", "ko", "nospeech"
+                use_itn=True,
+                batch_size_s=60,
+                chunk_size=end-start
+            )
+            content = rich_transcription_postprocess(sentence[0]["text"])
+            results.append({"speaker": speaker, "content": content})
+            i += 1 
+        ret = {}
+        ret["transcribe_results"] = results
+        return ret
+    
+    
+    def transcribe_with_diarization(self, path, speech=None):
+        '''
+        @description: 语音识别转录, 使用diarization模型
+        @return {*}
+        @param {*} self
+        @param {str} path 语音文件路径
+        @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
+        '''
+        if speech is None:
+            speech = load_wav_from_path_sf(path)
+        chuncksInfo = self.diarization_model(speech)
+        results = []
+        i = 0
+        for chunk in chuncksInfo:
+            # 计算音频开始和结束的时间（chunk[0]是开始时间，[1]是结束的时间，单位都是秒，所以分割点要×16000（采样率）
+            start = int(chunk[0] * 16000)
+            end = int(chunk[1] * 16000)
             speaker = self.get_speaker(speech[start:end], self.speakers.getSpeakers())
             sentence = self.transcribe_model.generate(
                 input=speech[start:end],

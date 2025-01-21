@@ -17,7 +17,7 @@ class zipEnhancerModel:
         if 'CUDAExecutionProvider' in self.onnx_model.get_providers():
             self.LOGGER.info(f'[INFO]: The zipEnhancer is using GPU.')
         else:
-            self.LOGGER.info(f'[INFO]: The zipEnhancer is using CPU.')
+            self.LOGGER.info(f'[INFO]: The zipEnhancer is using cpu.')
 
 
     def to_numpy(self, tensor):

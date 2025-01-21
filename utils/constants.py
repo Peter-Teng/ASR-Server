@@ -1,7 +1,9 @@
 from fastapi import status
 
 # Ordinary Constants here
-SUCCESS = "OK"
+SUCCESS_CODE = 0
+SUCCESS_MSG = "success"
+SUCCESS_DATA = "OK"
 
 # Exception Constants here
 class ExceptionConstants:

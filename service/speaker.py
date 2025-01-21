@@ -1,7 +1,7 @@
 import copy
 from exceptions.application import ApiException
 from models.embeddingExtractor import getExtractor
-from utils.constants import SPEAKER_ALREADY_EXISTS, SUCCESS, SPEAKER_NOT_FOUND
+from utils.constants import SPEAKER_ALREADY_EXISTS, SUCCESS_DATA, SPEAKER_NOT_FOUND
 from utils.logger import getLogger
 from utils.speakers import getSpeakers
 from utils.singleton import singleton
@@ -34,7 +34,7 @@ class SpeakerService:
             raise ApiException(SPEAKER_ALREADY_EXISTS)
         embedding, savePath = self.extractor.compute_embedding(wav_file=path, speaker=speaker)
         self.speakers.addSpeaker(speaker, embedding, savePath)
-        return SUCCESS
+        return SUCCESS_DATA
     
     
     def delete(self, speaker):
@@ -47,7 +47,7 @@ class SpeakerService:
         if not self.speakers.consists(speaker):
             raise ApiException(SPEAKER_NOT_FOUND)
         self.speakers.deleteSpeaker(speaker)
-        return SUCCESS
+        return SUCCESS_DATA
 
     
     def list(self):

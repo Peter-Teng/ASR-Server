@@ -1,4 +1,4 @@
-
+from utils.constants import SUCCESS_CODE, SUCCESS_MSG, SUCCESS_DATA
 class response:  
     '''
     @description: 为标准化输出对象编写的类
@@ -8,14 +8,14 @@ class response:
     data: None
     
     @staticmethod
-    def success(data = None):
+    def success(data = SUCCESS_DATA):
         '''
         @description: 标准化输出成功对象
         @return {response} 输出对象
         '''        
         obj = response()
-        obj.code = "0"
-        obj.msg = "success"
+        obj.code = SUCCESS_CODE
+        obj.msg = SUCCESS_MSG
         obj.data = data
         return obj
     

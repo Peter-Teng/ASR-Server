@@ -66,17 +66,18 @@ class TranscribeService:
         return ret
     
     
-    def transcribe_with_diarization(self, path, speech=None):
+    def transcribe_with_diarization(self, path, speech=None, speaker_num=None):
         '''
         @description: 语音识别转录, 使用diarization模型
         @return {*}
         @param {*} self
         @param {str} path 语音文件路径
         @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
+        @param {int} speaker_num 说话人数量
         '''
         if speech is None:
             speech = load_wav_from_path_sf(path)
-        chuncksInfo = self.diarization_model(speech)
+        chuncksInfo = self.diarization_model(speech, speaker_num=speaker_num)
         results = []
         i = 0
         for chunk in chuncksInfo:

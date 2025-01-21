@@ -53,12 +53,11 @@ def transcribe(request:Request, audio: Audio):
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
-    path = audio.path
-    if not os.path.exists(path):
+    if not os.path.exists(audio.path):
         raise ApiException(FILE_NOT_FOUND)
     transcribeService = TranscribeService()
     start = time.time()  # 记录开始时间
-    data = transcribeService.transcribe_with_diarization(path)
+    data = transcribeService.transcribe_with_diarization(path=audio.path, speaker_num=audio.speaker_num)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
     return response.success(data)

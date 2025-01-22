@@ -27,17 +27,16 @@ def transcribe(request:Request, audio: Audio):
     '''
     @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法），使用fsmn_vad_zh-cn-16k模型进行语音分割
     @param {Request} request 请求基本信息对象
-    @param {Audio} audio 音频对象（路径）
+    @param {Audio} audio 音频对象
     @return {respose} 语音识别内容
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
-    path = audio.path
-    if not os.path.exists(path):
+    if audio.base64Str is None and not os.path.exists(audio.path):
         raise ApiException(FILE_NOT_FOUND)
     transcribeService = TranscribeService()
     start = time.time()  # 记录开始时间
-    data = transcribeService.transcribe(path)
+    data = transcribeService.transcribe(audio)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
     return response.success(data)
@@ -48,16 +47,16 @@ def transcribe(request:Request, audio: Audio):
     '''
     @description: 对以Json格式传入路径下的音频文件进行语音识别（POST方法）,使用3D-Speaker下的Speech Diarization模型进行分割
     @param {Request} request 请求基本信息对象
-    @param {Audio} audio 音频对象（路径）
+    @param {Audio} audio 音频对象
     @return {respose} 语音识别内容
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
-    if not os.path.exists(audio.path):
+    if audio.base64Str is None and not os.path.exists(audio.path):
         raise ApiException(FILE_NOT_FOUND)
     transcribeService = TranscribeService()
     start = time.time()  # 记录开始时间
-    data = transcribeService.transcribe_with_diarization(path=audio.path, speaker_num=audio.speaker_num)
+    data = transcribeService.transcribe_with_diarization(audio)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
     return response.success(data)
@@ -68,19 +67,19 @@ def denoiseAndTranscribe(request:Request, audio: Audio):
     '''
     @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法），使用ZipEnhancer模型去噪
     @param {Request} request 请求基本信息对象
-    @param {Audio} audio 音频对象（路径）
+    @param {Audio} audio 音频对象
     @return {respose} 语音识别内容
     '''
     LOGGER = getLogger()
     LOGGER.info("[%s] - Receive from [%s] - Path[%s]" % (request.method, request.client.host, request.url.path))
     path = audio.path
-    if not os.path.exists(path):
+    if audio.base64Str is None and not os.path.exists(path):
         raise ApiException(FILE_NOT_FOUND)
     start = time.time()  # 记录开始时间
     transcribeService = TranscribeService()
     denoiseService = DenoiseService()
-    speech, _ = denoiseService.denoiseFile(path=path, save=False)
-    data = transcribeService.transcribe(path=path, speech=speech)
+    speech, _ = denoiseService.denoiseFile(audio, save=False)
+    data = transcribeService.transcribe(audio=None, speech=speech)
     elapse_time = time.time() - start
     LOGGER.debug("Inference Time : %2.2f ms" % (elapse_time * 1000))
     return response.success(data)

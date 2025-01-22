@@ -20,3 +20,4 @@ class ExceptionConstants:
 FILE_NOT_FOUND = ExceptionConstants(status.HTTP_200_OK, "-404", "文件不存在")
 SPEAKER_ALREADY_EXISTS = ExceptionConstants(status.HTTP_200_OK, "-200", "讲话人已存在")
 SPEAKER_NOT_FOUND = ExceptionConstants(status.HTTP_200_OK, "-404", "讲话人不存在")
+EMPTY_AUDIO_REQUEST = ExceptionConstants(status.HTTP_200_OK, "-400", "音频为空")

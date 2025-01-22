@@ -1,3 +1,5 @@
+import base64
+import io
 import soundfile
 import librosa
 import torch
@@ -38,6 +40,23 @@ def load_wav_from_path_torch(path, target_sample_rate=16000):
     if sample_rate != target_sample_rate:
         resampler = torchaudio.transforms.Resample(sample_rate, target_sample_rate, dtype=speech.dtype)
         speech = resampler(speech)
+    return speech
+
+
+def load_wav_from_base64(input, target_sample_rate=16000):
+    """
+    @description 将Base64字符串编码的WAV文件转换为NumPy的ndarray。
+    @param base64_string: Base64编码的WAV文件字符串。
+    @return: NumPy的ndarray。
+    """
+    # 将Base64字符串解码为字节流
+    audio_bytes = base64.b64decode(input)
+    # 使用io.BytesIO将字节流转换为文件对象
+    audio_file = io.BytesIO(audio_bytes)
+    # 使用soundfile读取音频数据
+    speech, sample_rate = soundfile.read(audio_file)
+    if sample_rate != 16000:
+        speech = librosa.resample(speech, orig_sr = sample_rate, target_sr = target_sample_rate)
     return speech
 
 

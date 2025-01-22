@@ -1,12 +1,14 @@
 import io
 import soundfile
 import torch
+from exceptions.application import ApiException
 from models.Speaker.speakerlab.bin.infer_diarization import Diarization3Dspeaker
+from utils.constants import EMPTY_AUDIO_REQUEST
 from utils.logger import getLogger
 from utils.singleton import singleton
 from models.embeddingExtractor import getExtractor
 from utils.speakers import getSpeakers
-from utils.audioUtils import load_wav_from_path_sf
+from utils.audioUtils import load_wav_from_base64, load_wav_from_path_sf
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 
@@ -32,7 +34,7 @@ class TranscribeService:
         self.extractor = getExtractor()
 
     
-    def transcribe(self, path, speech=None):
+    def transcribe(self, audio, speech=None):
         '''
         @description: 语音识别转录
         @return {*}
@@ -40,8 +42,15 @@ class TranscribeService:
         @param {str} path 语音文件路径
         @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
         '''
-        if speech is None:
-            speech = load_wav_from_path_sf(path)
+        if speech is not None:
+            # do nothing while speech is not None
+            pass
+        elif audio.base64Str is not None:
+            speech = load_wav_from_base64(audio.base64Str)
+        elif audio.path is not None:
+            speech = load_wav_from_path_sf(audio.path)
+        else:
+            raise ApiException(EMPTY_AUDIO_REQUEST)
         chuncksInfo = self.vad_model.generate(input=speech, chunk_size=speech.shape[0])
         results = []
         i = 0
@@ -66,18 +75,24 @@ class TranscribeService:
         return ret
     
     
-    def transcribe_with_diarization(self, path, speech=None, speaker_num=None):
+    def transcribe_with_diarization(self, audio, speech=None):
         '''
         @description: 语音识别转录, 使用diarization模型
         @return {*}
         @param {*} self
-        @param {str} path 语音文件路径
+        @param {str} audio 语音文件对象
         @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
-        @param {int} speaker_num 说话人数量
         '''
-        if speech is None:
-            speech = load_wav_from_path_sf(path)
-        chuncksInfo = self.diarization_model(speech, speaker_num=speaker_num)
+        if speech is not None:
+            # do nothing while speech is not None
+            pass
+        elif audio.base64Str is not None:
+            speech = load_wav_from_base64(audio.base64Str)
+        elif audio.path is not None:
+            speech = load_wav_from_path_sf(audio.path)
+        else:
+            raise ApiException(EMPTY_AUDIO_REQUEST)
+        chuncksInfo = self.diarization_model(speech, speaker_num=audio.speaker_num)
         results = []
         i = 0
         for chunk in chuncksInfo:

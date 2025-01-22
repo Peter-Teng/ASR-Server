@@ -1,7 +1,10 @@
+from datetime import datetime
 import math
 import numpy as np
+from exceptions.application import ApiException
+from utils.constants import EMPTY_AUDIO_REQUEST
 from utils.logger import getLogger
-from utils.audioUtils import load_wav_from_path_sf, save_wav
+from utils.audioUtils import load_wav_from_base64, load_wav_from_path_sf, save_wav
 from utils.singleton import singleton
 from models.embeddingExtractor import *
 from models.zipEnhancer import zipEnhancerModel
@@ -26,15 +29,20 @@ class DenoiseService:
         self.denoiser = zipEnhancerModel(self.conf)
         
         
-    def denoiseFile(self, path, save=False) -> Tuple[np.ndarray, str]:
+    def denoiseFile(self, audio, save=False) -> Tuple[np.ndarray, str]:
         '''
         @description: 
         @param {DenoiseService} self
-        @param {str} path 去噪音频路径
+        @param {Audio} audio 去噪音频对象
         @param {boolean} save 是否保存去噪音频
         @return {Tuple[np.ndarray, str]} 去噪numpy对象及保存地址
         '''
-        speech = load_wav_from_path_sf(path)
+        if audio.base64Str is not None:
+            speech = load_wav_from_base64(audio.base64Str)
+        elif audio.path is not None:
+            speech = load_wav_from_path_sf(audio.path)
+        else:
+            raise ApiException(EMPTY_AUDIO_REQUEST)
         # 将音频分段处理
         speechLength = speech.shape[0]
         # fragmentSamples-每个片段含有的样本数
@@ -51,7 +59,11 @@ class DenoiseService:
         savePath = None
         # 保存增强音频
         if save:
-            savePath = os.path.join(self.denoised_path, ('%s_enhanced.wav' % (path.split("/")[-1].split(".")[0])))
+            current_date = datetime.now()
+            savePath = os.path.join(self.denoised_path, ('%s-%s-%s-%s_enhanced.wav' % (str(current_date.year), 
+                                                                                    str(current_date.month).zfill(2), 
+                                                                                    str(current_date.day).zfill(2),
+                                                                                    str(current_date.timestamp()))))
             save_wav(enhancedSpeech, savePath)
             self.LOGGER.info(f'[INFO]: The denoised speech is saved to {savePath}.')
         

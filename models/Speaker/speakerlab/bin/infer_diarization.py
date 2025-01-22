@@ -195,7 +195,10 @@ class Diarization3Dspeaker():
 
         # stage 2: prepare subseg
         chunks = [c for (st, ed) in vad_time for c in self.chunk(st, ed)]
-
+        # special case for empty wav
+        if len(chunks) == 0:
+            return []
+        
         # stage 3: extract embeddings
         embeddings = self.do_emb_extraction(chunks, wav_data)
 

@@ -7,6 +7,8 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture(scope="session", autouse=True)
 def delete_embedding_histories():
+    if not os.path.exists(os.path.join(os.getcwd(), "outputs/embedding")):
+        return
     for embedding in os.listdir(os.path.join(os.getcwd(), "outputs/embedding")):
         os.remove(os.path.join(os.getcwd(), "outputs/embedding", embedding))
       

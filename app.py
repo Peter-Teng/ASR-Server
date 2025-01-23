@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import argparse
 import uvicorn
@@ -16,7 +17,7 @@ from exceptions import registerExceptionHandler
 # 读取命令行参数
 parser = argparse.ArgumentParser()
 # 基础参数
-parser.add_argument('--host', type=str, help='The IP address of server', default="localhost")
+parser.add_argument('--host', type=str, help='The IP address of server', default="0.0.0.0")
 parser.add_argument('--port', type=int, help='The port of the service', default=8000)
 parser.add_argument('--download', help='To download the reqired models', action='store_true', default=False)
 parser.add_argument('--workers', type=int, help='The numbers of workers for the application', default=1)
@@ -43,7 +44,6 @@ async def init(app: FastAPI):
     initSpeakers()
     LOGGER = getLogger()
     LOGGER.info("------------正在初始化------------")
-
     
     # 初始化服务类
     LOGGER.info("------------NOW Initializing Model------------")
@@ -63,6 +63,7 @@ async def init(app: FastAPI):
 
 
 app = FastAPI(lifespan=init)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 registerExceptionHandler(app)
 
 

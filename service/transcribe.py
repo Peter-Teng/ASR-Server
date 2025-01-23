@@ -39,8 +39,8 @@ class TranscribeService:
         @description: 语音识别转录
         @return {*}
         @param {*} self
-        @param {str} path 语音文件路径
-        @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
+        @param {Audio} audio 语音对象
+        @param {np.ndarray} speech 若为None，则从path读取；若有数据，则直接使用
         '''
         if speech is not None:
             # do nothing while speech is not None
@@ -80,8 +80,8 @@ class TranscribeService:
         @description: 语音识别转录, 使用diarization模型
         @return {*}
         @param {*} self
-        @param {str} audio 语音文件对象
-        @param {np.ndarray} data 若为None，则从path读取；若有数据，则直接使用
+        @param {Audio} audio 语音文件对象
+        @param {np.ndarray} speech 若为None，则从path读取；若有数据，则直接使用
         '''
         if speech is not None:
             # do nothing while speech is not None

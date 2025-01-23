@@ -65,7 +65,7 @@ def transcribe(request:Request, audio: Audio):
 @router.post("/denoised")
 def denoiseAndTranscribe(request:Request, audio: Audio):
     '''
-    @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法），使用ZipEnhancer模型去噪
+    @description: 对以Json格式传入路径下的音频文件进行去噪并语音识别（POST方法），使用去噪模型进行去噪
     @param {Request} request 请求基本信息对象
     @param {Audio} audio 音频对象
     @return {respose} 语音识别内容

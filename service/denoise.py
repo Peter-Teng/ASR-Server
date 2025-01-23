@@ -7,8 +7,7 @@ from utils.logger import getLogger
 from utils.audioUtils import load_wav_from_base64, load_wav_from_path_sf, save_wav
 from utils.singleton import singleton
 from models.embeddingExtractor import *
-from models.zipEnhancer import zipEnhancerModel
-from modelscope.utils.audio.audio_utils import audio_norm
+from models.denoiseModel import DenoiseModel
 
 @singleton
 class DenoiseService:
@@ -26,7 +25,7 @@ class DenoiseService:
         self.denoised_path = conf["denoised_path"]
         pathlib.Path(self.denoised_path).mkdir(exist_ok=True, parents=True)
         
-        self.denoiser = zipEnhancerModel(self.conf)
+        self.denoiser = DenoiseModel(self.conf)
         
         
     def denoiseFile(self, audio, save=False) -> Tuple[np.ndarray, str]:
@@ -51,10 +50,8 @@ class DenoiseService:
         enhancedSpeech = None
         # 分段增强音频
         for i in range(fragmentsCount):
-            fragment = audio_norm(speech[i*fragmentSamples : (i+1)*fragmentSamples]).astype(np.float32)
-            noisyFragment = torch.from_numpy(np.reshape(fragment, [1, fragment.shape[0]]))
-            enhancedFragment = self.denoiser(noisyFragment)
-            enhancedFragment = (enhancedFragment[0]).astype(np.float64)
+            fragment = speech[i*fragmentSamples : (i+1)*fragmentSamples]
+            enhancedFragment = self.denoiser(fragment)
             enhancedSpeech = enhancedFragment if enhancedSpeech is None else np.concatenate((enhancedSpeech, enhancedFragment))
         savePath = None
         # 保存增强音频
